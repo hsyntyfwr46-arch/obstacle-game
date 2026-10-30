@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة تجاوز العقبات - حسين طيفور</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        h1 {
+            margin-bottom: 5px;
+            font-size: 20px;
+            color: #00e676;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        #gameContainer {
+            position: relative;
+            width: 360px;
+            height: 480px;
+            border: 3px solid #00e676;
+            border-radius: 12px;
+            background-color: #1e1e1e;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+        /* شاشة البداية */
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 18, 18, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+        }
+        #startScreen h2 {
+            color: #00e676;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        #startScreen p {
+            color: #ccc;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .main-btn {
+            padding: 14px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #00e676;
+            color: #121212;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,230,118,0.3);
+        }
+        .main-btn:active {
+            background-color: #00c853;
+            transform: scale(0.96);
+        }
+        /* لوحة النقاط */
+        #scoreBoard {
+            margin-top: 10px;
+            font-size: 16px;
+            display: flex;
+            gap: 20px;
+            font-weight: bold;
+        }
+        /* الأزرار العلوية والسفلية للتحكم باللمس */
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            width: 360px;
+            padding: 0 10px;
+        }
+        button.ctrl-btn {
+            flex: 1;
+            padding: 16px 0;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            touch-action: manipulation;
+        }
+        button.ctrl-btn:active {
+            background-color: #1b5e20;
+            transform: scale(0.95);
+        }
+        button.restart-btn {
+            background-color: #c62828;
+        }
+        button.restart-btn:active {
+            background-color: #b71c1c;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>لعبة تجاوز العقبات ⚽</h1>
+    <div class="subtitle">تصميم وتطوير: حسين طيفور</div>
+
+    <div id="gameContainer">
+        <!-- شاشة البداية -->
+        <div id="startScreen">
+            <h2>تجاوز العقبات</h2>
+            <p>تحكم بالكرة لتفادي العقبات الساقطة وحقق أعلى رقم قياسي!</p>
+            <button class="main-btn" onclick="startGame()">ابدأ اللعب 🚀</button>
+        </div>
+        <canvas id="gameCanvas" width="360" height="480"></canvas>
+    </div>
+
+    <div id="scoreBoard">
+        <div>النقاط: <span id="score">0</span></div>
+        <div>أعلى نتيجة: <span id="highScore">0</span></div>
+    </div>
+
+    <div class="controls">
+        <button class="ctrl-btn" onclick="moveLeft()">◀ يسار</button>
+        <button class="ctrl-btn restart-btn" onclick="restartGame()">إعادة 🔄</button>
+        <button class="ctrl-btn" onclick="moveRight()">يمين ▶</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const startScreen = document.getElementById("startScreen");
+
+        let ball = {
+            x: canvas.width / 2,
+            y: canvas.height - 50,
+            radius: 15,
+            color: "#00e676",
+            speed: 30
+        };
+
+        let obstacles = [];
+        let score = 0;
+        let highScore = localStorage.getItem("hussein_game_highscore") || 0;
+        let gameRunning = false;
+        let gameOver = false;
+        let frameCount = 0;
+
+        document.getElementById("highScore").innerText = highScore;
+
+        function startGame() {
+            startScreen.style.display = "none";
+            gameRunning = true;
+            restartGameLogic();
+            gameLoop();
+        }
+
+        function moveLeft() {
+            if (gameRunning && !gameOver && ball.x - ball.radius > 0) {
+                ball.x -= ball.speed;
+            }
+        }
+
+        function moveRight() {
+            if (gameRunning && !gameOver && ball.x + ball.radius < canvas.width) {
+                ball.x += ball.speed;
+            }
+        }
+
+        // دعم تحكم الكيبورد أيضاً
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") moveLeft();
+            if (e.key === "ArrowRight") moveRight();
+        });
+
+        function createObstacle() {
+            let width = Math.random() * (canvas.width / 2) + 40;
+            let x = Math.random() * (canvas.width - width);
+            obstacles.push({
+                x: x,
+                y: -20,
+                width: width,
+                height: 16,
+                color: "#ff5252",
+                speed: 3 + Math.floor(score / 4)
+            });
+        }
+
+        function update() {
+            if (!gameRunning || gameOver) return;
+
+            frameCount++;
+            if (frameCount % 55 === 0) {
+                createObstacle();
+            }
+
+            for (let i = 0; i < obstacles.length; i++) {
+                let obs = obstacles[i];
+                obs.y += obs.speed;
+
+                // فحص الاصطدام
+                if (
+                    ball.x + ball.radius > obs.x &&
+                    ball.x - ball.radius < obs.x + obs.width &&
+                    ball.y + ball.radius > obs.y &&
+                    ball.y - ball.radius < obs.y + obs.height
+                ) {
+                    gameOver = true;
+                    gameRunning = false;
+                    
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem("hussein_game_highscore", highScore);
+                        document.getElementById("highScore").innerText = highScore;
+                    }
+
+                    alert("خسرت يا حسين! مجموع نقاطك: " + score);
+                }
+
+                if (obs.y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                    document.getElementById("score").innerText = score;
+                    i--;
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // رسم الكرة
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = ball.color;
+            ctx.fill();
+            ctx.closePath();
+
+            // رسم العقبات
+            for (let obs of obstacles) {
+                ctx.fillStyle = obs.color;
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+            }
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            if (gameRunning) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function restartGameLogic() {
+            ball.x = canvas.width / 2;
+            obstacles = [];
+            score = 0;
+            gameOver = false;
+            frameCount = 0;
+            document.getElementById("score").innerText = score;
+        }
+
+        function restartGame() {
+            gameRunning = true;
+            restartGameLogic();
+            gameLoop();
+        }
+    </script>
+</body>
+</html>
