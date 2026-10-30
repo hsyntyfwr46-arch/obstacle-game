@@ -1,6 +1,7 @@
 {
   "name": "لعبة تجاوز العقبات",
   "short_name": "لعبة العقبات",
+  "description": "لعبة تفاعلية ممتعة لتجاوز العقبات واختبار سرعة البديعة",
   "start_url": "/obstacle-game/",
   "display": "standalone",
   "background_color": "#111111",
@@ -13,5 +14,3 @@
     }
   ]
 }
-o
-
