@@ -5,8 +5,8 @@
   "name": "Obstacle Game",
   "short_name": "Obstacle Game",
   "description": "An interactive game to avoid obstacles and score high points",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/obstacle-game/",
+"scope": "/obstacle-game/",
   "orientation": "any",
   "theme_color": "#ffffff",
   "icons": [
