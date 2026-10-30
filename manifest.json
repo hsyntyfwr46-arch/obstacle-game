@@ -1,11 +1,11 @@
 {
-  "name": "لعبة تجاوز العقبات",
-  "short_name": "لعبة العقبات",
+  "name": "Obstacle Game",
+  "short_name": "ObstacleGame",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#00e676",
-  "description": "لعبة تفاعلية ممتعة لتجاوز العقبات وتحقيق أعلى نقاط",
+  "description": "An interactive game to avoid obstacles and score high points",
   "icons": [
     {
       "src": "https://via.placeholder.com/512.png",
