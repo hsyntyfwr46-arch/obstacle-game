@@ -1,16 +1,11 @@
 {
-  "name": "Obstacle Game",
-  "short_name": "ObstacleGame",
-  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "dir": "ltr",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#00e676",
-  "description": "An interactive game to avoid obstacles and score high points",
-  "icons": [
-    {
-      "src": "https://via.placeholder.com/512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+  "name": "Obstacle Game",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Obstacle Game",
+  "start_url": "/",
+  "theme_color": "#ffffff"
 }
